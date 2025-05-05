@@ -10,6 +10,12 @@ const prisma = new PrismaClient();
 app.use(express.json());
 
 
+// Rota inicial
+app.get('/', (req, res) => {
+  res.json({ mensagem: 'Olá do backend!' });
+});
+
+
 // Rotas
 app.use('/api/usuarios', usuariosRoutes);
 
