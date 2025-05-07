@@ -19,3 +19,12 @@ model Usuario {
   senha   String 
   nomeUsuario   String 
 }
+
+model Caderno {
+  id    String @id @default(auto()) @map("_id") @db.ObjectId
+}
+
+model Livro {
+  id    String @id @default(auto()) @map("_id") @db.ObjectId
+}
+
