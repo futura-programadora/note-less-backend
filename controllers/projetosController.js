@@ -1,42 +1,49 @@
 import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
+import { cloudinaryV2 } from '../config/cloudinary.js';
+import fs from 'fs'; 
 
 export async function listarProjeto(req, res) {
-    const { userId } = req.body;
+  const { userId } = req.body;
 
-    try {
-        const projetos = await prisma.projeto.findMany({
-            where: {
-                userId: userId,
-            },
-            include: {
-                paginas: true
-            }
-        });
+  try {
+    const projetos = await prisma.projeto.findMany({
+      where: { userId },
+      include: { paginas: true }
+    });
 
-        res.json(projetos);
-    } catch (erro) {
-        console.error('Erro ao listar projetos:', erro);
-        res.status(500).json({ erro: 'Erro ao buscar projetos.' });
-    }
+    res.json(projetos);
+  } catch (erro) {
+    console.error('Erro ao listar projetos:', erro);
+    res.status(500).json({ erro: 'Erro ao buscar projetos.' });
+  }
 }
 
-
 export async function criarProjeto(req, res) {
-    const { titulo, tipo, capa, userId } = req.body;
+    const { titulo, tipo, userId } = req.body;
+    const capa = req.file?.path; // Caminho temporário da imagem salvo no servidor
 
     try {
+        // Fazer o upload da imagem para o Cloudinary
+        const uploadResponse = await cloudinaryV2.uploader.upload(capa, {
+            folder: 'note_less',  // Pasta no Cloudinary para organizar as imagens
+        });
+
+        // Obter a URL segura (link público) da imagem no Cloudinary
+        const capaUrl = uploadResponse.secure_url;  // URL gerada pelo Cloudinary
+
+        // Criar o projeto e salvar a URL da capa (não o caminho local)
         const novoProjeto = await prisma.projeto.create({
             data: {
                 titulo,
                 tipo,
-                capa,
+                capa: capaUrl, // Aqui você armazena o link da imagem no Cloudinary
                 userId,
                 paginas: {
                     create: {
-                        conteudo: '',           // conteúdo inicial da página
-                        corFundo: '#ffffff',    // cor de fundo padrão
-                        numero: 1               // número da página inicial
+                        conteudo: '',
+                        corFundo: '#ffffff',
+                        numero: 1
                     }
                 }
             },
@@ -45,18 +52,20 @@ export async function criarProjeto(req, res) {
             }
         });
 
-        res.status(200).json(novoProjeto);
+        // Remover o arquivo local após o upload (opcional)
+        fs.unlinkSync(capa);  // Exclui o arquivo local da pasta 'uploads'
+
+        res.status(200).json(novoProjeto);  // Retorna o novo projeto
     } catch (erro) {
         console.error('Erro ao criar projeto com página inicial:', erro);
         res.status(400).json({ erro: 'Erro ao criar projeto', detalhes: erro.message });
     }
 }
 
-
 export async function editarProjeto(req, res) {
-
+  // implementar depois
 }
 
 export async function deletarProjeto(req, res) {
-
+  // implementar depois
 }

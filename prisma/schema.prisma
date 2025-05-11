@@ -22,19 +22,19 @@ model Usuario {
 }
 
 model Projeto {
-  id         String     @id @default(auto()) @map("_id")
+  id         String     @id @default(auto()) @map("_id") @db.ObjectId
   titulo     String
   tipo       String     // "livro" ou "caderno"
   capa       String?    // URL ou base64, opcional
   paginas    Pagina[]
   criadoEm   DateTime   @default(now())
   atualizadoEm DateTime @updatedAt
-  user       User       @relation(fields: [userId], references: [id])
+  user       Usuario      @relation(fields: [userId], references: [id])
   userId     String
 }
 
 model Pagina {
-  id         String   @id @default(auto()) @map("_id")
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
   conteudo   String?
   corFundo   String?  // se quiser permitir cor personalizada
   numero     Int

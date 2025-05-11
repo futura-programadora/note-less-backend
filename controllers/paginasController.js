@@ -72,19 +72,30 @@ export async function editarPagina(req, res) {
 
 
 export async function deletarPagina(req, res) {
-    const { id } = req.body;
+    const { id, projetoId } = req.body;
 
     try {
-        await prisma.pagina.delete({
-            where: { id }
+        // Deleta a página
+        await prisma.pagina.delete({ where: { id } });
+
+        // Conta páginas restantes
+        const paginasRestantes = await prisma.pagina.count({
+            where: { projetoId }
+        });
+
+        // Atualiza o projeto
+        await prisma.projeto.update({
+            where: { id: projetoId },
+            data: {
+                atualizadoEm: new Date()
+                // Se usar campo `numeroTotalPaginas`: numeroTotalPaginas: paginasRestantes
+            }
         });
 
         res.status(200).json({ mensagem: 'Página deletada com sucesso.' });
     } catch (erro) {
         console.error('Erro ao deletar página:', erro);
-        res.status(400).json({
-            erro: 'Erro ao deletar página',
-            detalhes: erro.message
-        });
+        res.status(400).json({ erro: 'Erro ao deletar página', detalhes: erro.message });
     }
 }
+
