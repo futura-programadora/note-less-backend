@@ -19,6 +19,50 @@ export async function listarProjeto(req, res) {
   }
 }
 
+export async function buscarProjetoPorId(req, res) {
+  const { id } = req.params;
+
+  try {
+    const projeto = await prisma.projeto.findUnique({
+      where: { id },
+      include: { paginas: true }
+    });
+
+    if (!projeto) {
+      return res.status(404).json({ erro: 'Projeto não encontrado.' });
+    }
+
+    res.status(200).json(projeto);
+  } catch (erro) {
+    console.error('Erro ao buscar projeto por ID:', erro);
+    res.status(500).json({ erro: 'Erro ao buscar projeto.' });
+  }
+}
+
+export async function filtrarProjeto(req, res) {
+  const { tipo } = req.body;
+
+  try {
+    const projetosFiltrados = await prisma.projeto.findMany({
+      where: {
+        tipo: {
+          contains: tipo,
+          mode: 'insensitive' // ignora maiúsculas/minúsculas
+        }
+      },
+      include: {
+        paginas: true
+      }
+    });
+
+    res.status(200).json(projetosFiltrados);
+  } catch (erro) {
+    console.error('Erro ao filtrar projetos:', erro);
+    res.status(400).json({ erro: 'Erro ao filtrar projetos' });
+  }
+}
+
+
 export async function criarProjeto(req, res) {
     const { titulo, tipo, userId } = req.body;
     const capa = req.file?.path; // Caminho temporário da imagem salvo no servidor

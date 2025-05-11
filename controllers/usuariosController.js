@@ -36,6 +36,7 @@ export async function loginUsuario(req, res) {
             message: 'Login bem-sucedido!',
             usuario: {
                 id: usuario.id,
+                senha: usuario.senha,
                 email: usuario.email,
                 nomeUsuario: usuario.nomeUsuario
             }

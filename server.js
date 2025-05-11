@@ -4,6 +4,7 @@ import cors from 'cors';
 
 import usuariosRoutes from './routes/usuarios.js';
 import projetosRoutes from './routes/projetos.js';
+import paginasRoutes from './routes/paginas.js'
 
 
 const app = express();
@@ -22,6 +23,7 @@ app.get('/', (req, res) => {
 // Rotas
 app.use('/api/usuarios', usuariosRoutes);
 app.use('/api/projetos', projetosRoutes);
+app.use('/api/paginas', paginasRoutes)
 
 // Iniciar o servidor
 const PORT = process.env.PORT || 3001;
